@@ -1,0 +1,31 @@
+# Lets the frontend read (only read) pod status in its own namespace,
+# so the status panel can tell "restarting" from "down".
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: frontend-sa
+  namespace: state-app
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: pod-reader
+  namespace: state-app
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: frontend-pod-reader
+  namespace: state-app
+subjects:
+  - kind: ServiceAccount
+    name: frontend-sa
+    namespace: state-app
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io

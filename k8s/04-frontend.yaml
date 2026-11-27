@@ -13,15 +13,18 @@ spec:
       labels:
         app: frontend
     spec:
+      serviceAccountName: frontend-sa     # lets the app read pod status (see 03a-frontend-rbac.yaml)
       containers:
         - name: frontend
-          image: myacrrepo5312.azurecr.io/state-app:1.0
+          image: myacrrepo5312.azurecr.io/state-app:1.2
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
           env:
             - name: DB_HOST
               value: postgres-primary
+            - name: DB_READ_HOST
+              value: postgres-read
             - name: DB_NAME
               value: appdb
             - name: DB_USER
@@ -42,7 +45,7 @@ spec:
             failureThreshold: 6
           resources:
             requests: { cpu: 50m, memory: 64Mi }
-            limits: { memory: 128Mi }
+            limits: { memory: 192Mi }
 ---
 apiVersion: v1
 kind: Service
