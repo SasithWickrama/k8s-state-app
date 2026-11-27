@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: state-app:1.0
-          imagePullPolicy: IfNotPresent   # use your registry path here if you push the image
+          image: myacrrepo5312.azurecr.io/state-app:1.0
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
           env:
@@ -29,12 +29,15 @@ spec:
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef: { name: postgres-secret, key: POSTGRES_PASSWORD }
+          startupProbe:
+            httpGet: { path: /livez, port: 3000 }
+            periodSeconds: 5
+            failureThreshold: 60        # up to 5 min for the DB to come up
           readinessProbe:
             httpGet: { path: /healthz, port: 3000 }
             periodSeconds: 5
           livenessProbe:
-            httpGet: { path: /healthz, port: 3000 }
-            initialDelaySeconds: 15
+            httpGet: { path: /livez, port: 3000 }
             periodSeconds: 10
             failureThreshold: 6
           resources:

@@ -61,6 +61,11 @@ app.post('/api/toggle', async (_req, res) => {
   }
 });
 
+// Liveness: process is up. Deliberately does NOT touch the database,
+// so a DB outage never causes Kubernetes to restart the frontend pods.
+app.get('/livez', (_req, res) => res.send('ok'));
+
+// Readiness: only receive traffic when the database is reachable.
 app.get('/healthz', async (_req, res) => {
   try {
     await pool.query('SELECT 1');
